@@ -1,0 +1,230 @@
+﻿@using StufShop.InfraStructure
+@using StufShop.Models
+@using Microsoft.AspNetCore.Identity
+@using StufShop.Models.Carts
+@model StufShop.Models.Profile.Address
+
+@section Style
+{
+    <title>ثبت سفارش</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="~/css/reset.css" type="text/css">
+    <link rel="stylesheet" href="~/css/layout.css" type="text/css">
+    <link rel="stylesheet" href="~/css/style.css" type="text/css">
+    <link href="~/css/fonts.css" rel="stylesheet" />
+    <link href="~/css/Admin/style.css" rel="stylesheet" />
+    <link href="~/css/order/Index.css" rel="stylesheet" />
+}
+
+@inject UserManager<User> userManager
+@inject SignInManager<User> signInManager
+@inject ICartItemRepository _cartItemRepo
+
+@{
+    ViewData["Title"] = "ثبت سفارش";
+    var message = "";
+    var action = "";
+    var control = "";
+    string displayname = "";
+    User Customer = null;
+    if (User.Identity.IsAuthenticated)
+    {
+        Customer = await userManager.FindByNameAsync(User.Identity.Name);
+        displayname = Customer.FirstName + " " + Customer.LastName;
+    }
+    var TotalPrice = ViewBag.TotalPrice;
+    if (TotalPrice == "0")
+    {
+        message = "سبد خرید شما خالی است ";
+        action = "Index";
+        control = "Home";
+    }
+    else
+    {
+        message = $"مبلغ قابل پرداخت  {TotalPrice} می باشد .";
+        action = "save";
+        control = "Order";
+    }
+    var cartItems = await _cartItemRepo.search(Customer.Id);
+    int couter = 1;
+}
+<div id="page1">
+    <div class="body6">
+        <div class="body1">
+            <div class="body5">
+                <div class="main">
+
+                    <article id="content-pay">
+                        <div id="cart" class="panel body-wrapper">
+                            <h2 class="order-form__header">سبد خرید</h2>
+                            <div class="panel__content">
+                                <div class="order__summary">
+                                    <a class="button" href="/Cart"><span class="button-text">@message</span></a>
+                                </div>
+
+                                <table style="width: 100%">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" style="width:2%" class="table-col">#</th>
+                                            <th scope="col" style="width: 35%; " class="table-col">مشخصات محصول</th>
+                                            <th scope="col" style="width: 10%; " class="table-col">قیمت تکی</th>
+                                            <th scope="col" style="width: 10%; " class="table-col">تعداد</th>
+                                            <th scope="col" style="width: 20%; " class="table-col">عملیات </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (cartItems != null)
+                                        {
+                                            @foreach (var item in cartItems)
+                                            {
+                                                <tr>
+                                                    <th scope="row" style="width: 2%; " class="table-body color2">@couter</th>
+                                                    <td style="width:35%" class="table-body">
+                                                        <strong>
+                                                            <a class="text-decoration-none color1" asp-controller="Home"
+                                                               asp-action="Details" asp-route-Id="@item.Stuf.Id">@item.Stuf.Title</a>
+                                                        </strong><br />
+                                                        <span class="color1 ">شناسه محصول :@item.Id</span>
+                                                    </td>
+                                                    <td style="width:10%" class="table-body color1">@item.Price</td>
+
+                                                    <td class="table-body color1">@item.number</td>
+
+                                                    <td class="align-middle table-body " style="width:20%">
+                                                        <a class=" btn-delete" asp-controller="Order" asp-action="DeleteCartItem" asp-route-id="@item.Id">حذف از سبد</a>
+
+                                                    </td>
+                                                </tr>
+                                                { couter++; }
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                <form asp-action="@action" asp-controller="@control" method="post" class="order-form validnd" novalidate>
+                                    <section class="order-form__section">
+                                        <h2 class="order-form__header">اطلاعات ارسال کالا</h2>
+                                        <div class="order-form__content">
+                                            <div class="order-form__group">
+                                                <label class="order-form__label" for="txtprovince">استان: </label>
+
+                                                <div class="order-form__field">
+                                                    <input class="order-form__input text-d" type="text" disabled value="@Model.Country" name="province" id="txtprovince" />
+                                                    <span class="order-form__validation mdi mdi-alert-circle-outline mdi-18px">درج استان الزامی است.</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="order-form__group">
+                                                <label class="order-form__label" for="txtCity">شهر: </label>
+
+                                                <div class="order-form__field">
+                                                    <input class="order-form__input text-d" type="text" disabled value="@Model.city" name="city" id="txtCity" />
+                                                    <span class="order-form__validation mdi mdi-alert-circle-outline mdi-18px">درج شهر الزامی است.</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="order-form__group">
+                                                <label class="order-form__label" for="txtAddress">آدرس: </label>
+
+                                                <div class="order-form__field">
+                                                    <textarea class="order-form__input  order-form__input--multiple text-d" disabled type="text" name="adderss" id="txtAddress" rows="5" cols="30">@Model.Location</textarea>
+                                                    <span class="order-form__validation mdi mdi-alert-circle-outline mdi-18px">درج آدرس الزامی است.</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="order-form__group">
+                                                <label class="order-form__label" for="txttel">شماره تماس: </label>
+
+                                                <div class="order-form__field">
+                                                    <input class="order-form__input text-d" type="text" disabled value="@Model.Phone" name="tel" id="txttel" />
+                                                    <span class="order-form__validation mdi mdi-alert-circle-outline mdi-18px">درج شماره تماس الزامی است.</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </form>
+                                    <section class="order-form__section">
+                                        <h2 class="order-form__header">روش پرداخت</h2>
+                                        <div class="order-form__content">
+
+
+                                            <div class="order-form__group">
+                                                <span class="order-form__label"></span>
+                                                <div class="order-form__field">
+                                                    <label class="order-form-radio">
+                                                        <input class="order-form-radio__input" type="radio" name="payment" checked required />
+
+                                                        <span class="order-form-radio__cotent">
+                                                            <span class="order-form-radio__title"> </span>
+                                                            <span class="order-form-radio__text">شماره ارجاع و تاریخ انتقال را پس از ثبت سفارش را ارسال کنید.</span>
+
+                                                        </span>
+
+                                                    </label>
+
+                                                </div>
+
+                                            </div>
+
+                                            <form class="payform" asp-action="Save" >
+
+                                            <input type="text" name="Paynumber" style="width: 200px;border: 1px solid #555;"
+                                                       class="inputpay" placeholder="شماره فیش پرداختی" />
+                                                <input type="datetime-local" name="Date" title="تاریخ انتقال" class="inputpay" />
+                                                @if (TotalPrice == "0")
+                                                {
+                                                    <div class="order-form__group order-form__group--btn">
+                                                        <span class="order-form__label"></span>
+                                                        <div class="order-form__field">
+                                                            <button class="button" type="submit"><span class="button-text">بازگشت</span></button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="order-form__group order-form__group--btn">
+                                                        <span class="order-form__label"></span>
+                                                        <div class="order-form__field">
+                                                            <button class="button" type="submit"><span class="button-text"> ثبت سفارش </span></button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </form>
+
+
+                                        </div>
+                                    </section>
+                               
+                            </div>
+                        </div>
+
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.validnd')
+
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}

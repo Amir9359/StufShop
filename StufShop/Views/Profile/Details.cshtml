@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model User
+@section Style
+{
+}
+
+@section Scripts
+{
+ 
+}
+@inject UserManager<User> userManager
+@inject SignInManager<User> signInManager
+
+@{
+    string displayname = "";
+    User Customer = null;
+    if (User.Identity.IsAuthenticated)
+    {
+        Customer = await userManager.FindByNameAsync(User.Identity.Name);
+        displayname = Customer.FirstName + " " + Customer.LastName;
+    }
+    var message = "";
+    message = ViewBag.Message;
+}
+ 
+   

@@ -1,0 +1,144 @@
+﻿@using StufShop.Models.Carts
+@model Cart
+@{
+    ViewData["Title"] = "جزئیات سفارش";
+    int count = 0;
+    double tPrice = 0;
+}
+@section Style{
+
+    <link href="~/Css/Order/Detail.css" rel="stylesheet" />
+    <link href="~/Css/Order/Index.css" rel="stylesheet" />
+}
+<div id="cart" class="panel body-wrapper">
+    <h1 class="panel__title">جزئیات سفارش</h1>
+    <div class="panel__content">
+        <div class="Order__ditaile">
+            @if (Model != null && Model.PayState == PayState.Paied)
+            {
+                <span class="Order__ditaile-title">وضعیت سفارش : پرداخت شده</span>
+
+            }
+            else if (Model != null && Model.PayState == PayState.UnPaied)
+            {
+                <span class="Order__ditaile-title">وضعیت سفارش : پرداخت نشده</span>
+            }
+        </div>
+        @if (Model != null && Model.PayState == PayState.UnPaied)
+        {
+            <form asp-controller="Order" asp-action="SavePayment" method="post" class="order-form validnd" novalidate>
+                <input type="hidden" value="@Model.Id" name="id" />
+                <div class="order-form__group">
+                    <label class="order-form__label" for="txtpaynumber">شماره ارجاع / شماره فیش : </label>
+
+                    <div class="order-form__field">
+                        <input class="order-form__input" type="text" name="paynumber" id="txtpaynumber" required />
+                        <span class="invalid-feedback mdi mdi-alert-circle-outline mdi-18px ">درج شماره ارجاع الزامی است.</span>
+                    </div>
+                </div>
+
+                <div class="order-form__group">
+                    <label class="order-form__label" for="txtDate">تاریخ: </label>
+
+                    <div class="order-form__field">
+                        <input class="order-form__input" type="text" name="payDate" id="txtDate" required />
+                        <span class="invalid-feedback mdi mdi-alert-circle-outline mdi-18px">درج تاریخ الزامی است.</span>
+                    </div>
+                </div>
+                <section class="order-form__section">
+                    <div class="order-form__content">
+                        <div class="order-form__group order-form__group--btn">
+                            <span class="order-form__label"></span>
+                            <div class="order-form__field">
+                                <button class="button" type="submit"><span class="button-text">ثبت اطلاعات </span></button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </form>
+            <h1 class="panel__title">سبد خرید</h1>
+            <div class="panel__content">
+                <div class="cart-table">
+                    <div class="cart-table__head">
+                        <div class="cart-table__td cart-table__td--row"></div>
+                        <div class="cart-table__td cart-table__td--product">کالا</div>
+                        <div class="cart-table__td cart-table__td--count">تعداد</div>
+                        <div class="cart-table__td cart-table__td--price">قیمت</div>
+                        <div class="cart-table__td cart-table__td--totalp">مجموع</div>
+                    </div>
+                    @foreach (var item in Model.cartItems)
+                    {
+                        var imageUrl = item.Stuf.Id + " .jpg";
+                        tPrice = item.Price * item.number;
+                        count++;
+                        <div class="cart-table__body">
+                            <div class="cart-table__td cart-table__td--row">@count</div>
+                            <div class="cart-table__td cart-table__td--product">
+                                <div class="cart-product">
+                                    <a href="#" class="cart-product__photo-link"><img class="cart-product__photo" src="~/Images/Product/@imageUrl" title="@item.Stuf.Title" alt="@item.Stuf.Title" /></a>
+                                    <div class="cart-product__titles">
+                                        <a class="cart-product__primary-title">@item.Stuf.Title</a><br />
+                                        <a class="cart-product__secondary-title">@item.Stuf.Description</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cart-table__td cart-table__td--count">@item.number</div>
+                            <div class="cart-table__td cart-table__td--price">@item.Price.ToString("N0") تومان</div>
+                            <div class="cart-table__td cart-table__td--totalp">@tPrice.ToString("N0") تومان</div>
+                        </div>
+                    }
+
+
+                </div>
+
+                <div class="cart__footer">
+                    <div class="order-detail">
+                        <p class="order-detail__text">استان: <strong class="order-detail__text--bold">@ViewBag.address.Province</strong></p>
+                        <p class="order-detail__text">شهر: <strong class="order-detail__text--bold">@ViewBag.address.city</strong></p>
+                        <p class="order-detail__text">آدرس: <strong class="order-detail__text--bold">@ViewBag.address.Location</strong></p>
+                        <p class="order-detail__text">شماره تماس: <strong class="order-detail__text--bold">@ViewBag.address.Phone</strong></p>
+                    </div>
+                    <div class="cart-total">
+                        <p class="cart__totalprice"> مجموع : @Model.cartItems.Sum(s => s.Price * s.number).ToString("N0") تومان</p>
+ 
+
+                        <p class="cart__totalpayprice"> مبلغ قابل پرداخت :@Model.TotlaPrice.ToString("N0") تومان</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+
+</div>
+
+
+@section Scripts{
+    <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.validnd')
+
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
+
+

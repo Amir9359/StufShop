@@ -1,0 +1,306 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using StufShop.Models.Profile
+@section Style
+{
+    <link href="~/css/order/Index.css" rel="stylesheet" />
+    <link href="~/css/Shared/Layout.css" rel="stylesheet" />
+}
+@section Scripts
+{
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.validnd')
+
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+
+
+}
+
+
+@inject UserManager<User> _usermanager;
+@inject IAddressRepository _addressRepo;
+
+@{
+    Address address = null;
+    string displayname = "";
+    User Customer = null;
+    if (User.Identity.IsAuthenticated)
+    {
+        Customer = await _usermanager.FindByNameAsync(User.Identity.Name);
+        address = await _addressRepo.Find(Customer.Id);
+        displayname = Customer.FirstName + " " + Customer.LastName;
+
+    }
+
+    var message = "";
+    message = ViewBag.Message;
+}
+
+<div id="cart" class="panel body-wrapper">
+    @if (address == null )
+    {
+        <div class="grid-c">
+
+            <form asp-controller="Profile" asp-action="save" method="post" class="order-form align-content-center validnd" novalidate>
+                <section class="order-form__section">
+                    <h2 class="order-form__header">اطلاعات ارسال کالا</h2>
+                    <div class="order-form__content">
+                        <div class="order-form__group">
+                            <label class="order-form__label" for="txtprovince">استان: </label>
+
+                            <div class="order-form__field">
+                                <input class="order-form__input" type="text" name="province" id="txtprovince" required />
+                            </div>
+                        </div>
+
+                        <div class="order-form__group">
+                            <label class="order-form__label" for="txtCity">شهر: </label>
+
+                            <div class="order-form__field">
+                                <input class="order-form__input" type="text" name="city" id="txtCity" required />
+                            </div>
+                        </div>
+
+                        <div class="order-form__group">
+                            <label class="order-form__label" for="txtAddress">آدرس: </label>
+
+                            <div class="order-form__field">
+                                <textarea class="order-form__input  order-form__input--multiple" type="text" name="address" id="txtAddress" rows="5" cols="30" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="order-form__group">
+                            <label class="order-form__label" for="txttel">شماره تماس: </label>
+
+                            <div class="order-form__field">
+                                <input class="order-form__input " maxlength="11" type="text" name="tel" id="txttel" required />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <section class="order-form__section">
+                    <div class="order-form__content">
+                        <div class="order-form__group order-form__group--btn">
+                            <span class="order-form__label"></span>
+                            <div class="order-form__field">
+                                <button class="button" type="submit"><span class="button-text">ثبت اطلاعات </span></button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </form>
+            <form class="order-form align-content-center" asp-controller="Profile" asp-action="Details" method="post">
+                <section class="order-form__section">
+                    <h2 class="order-form__header">اطلاعات شخصی</h2>
+                <div class="order-form__content">
+ 
+                        
+                    <div class="order-form__group">
+                        <label class="order-form__label" for="Fname">نام: </label>
+
+                        <div class="order-form__field">
+                            <input class="order-form__input" type="text" value="@Customer.FirstName" name="Fname" id="txtprovince" required />
+                        </div>
+                    </div>                       
+                    <div class="order-form__group">
+                        <label class="order-form__label" for="Lname">نام خانوادگی: </label>
+
+                        <div class="order-form__field">
+                            <input class="order-form__input" type="text" name="Lname" value="@Customer.LastName" id="txtprovince" required />
+                        </div>
+                    </div>                  
+                    <div class="order-form__group">
+                        <label class="order-form__label" for="Username">نام کاربری: </label>
+
+                        <div class="order-form__field">
+                            <input class="order-form__input" type="text" disabled=""   name="Username" value="@Customer.UserName" id="txtprovince" required />
+                        </div>
+                    </div>                  
+                    <div class="order-form__group">
+                        <label class="order-form__label" for="Password">رمز عبور: </label>
+
+                        <div class="order-form__field">
+                            <input class="order-form__input" type="password" name="Password" id="txtprovince" required />
+                        </div>
+                    </div>            
+                    <div class="order-form__group">
+                        <label class="order-form__label" for="ConformPassword">تایید رمز عبور: </label>
+
+                        <div class="order-form__field">
+                            <input class="order-form__input" type="password" name="ConformPassword" id="txtprovince" required />
+                        </div>
+                    </div>
+ 
+                        <div class="m-3">
+                            <span class="text-danger">@message</span>
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                        </div>
+                    <section class="order-form__section">
+                        <div class="order-form__content">
+                            <div class="order-form__group order-form__group--btn">
+                                <span class="order-form__label"></span>
+                                <div class="order-form__field">
+                                    <button class="button" type="submit"><span class="button-text">ثبت اطلاعات </span></button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                    </div>
+                </section>
+            </form>
+        </div>
+
+    }
+    else
+    {
+        <div class="grid-c">
+            <form asp-controller="Home" asp-action="Index" method="post" class="order-form align-content-center validnd" novalidate>
+                <section class="order-form__section">
+                    <h2 class="order-form__header">اطلاعات ارسال کالا</h2>
+                    <div class="order-form__content">
+                        <div>
+                            <div class="order-form__group">
+                                <label class="order-form__label" for="txtprovince">استان: </label>
+
+                                <div class="order-form__field">
+                                    <input class="order-form__input" type="text"  value="@address.Country"
+                                           name="province" id="txtprovince" required />
+                                </div>
+                            </div>
+
+                            <div class="order-form__group">
+                                <label class="order-form__label" for="txtCity">شهر: </label>
+
+                                <div class="order-form__field">
+                                    <input class="order-form__input" type="text" name="city"  value="@address.city"
+                                           id="txtCity" required />
+                                </div>
+                            </div>
+
+                            <div class="order-form__group">
+                                <label class="order-form__label" for="txtAddress">آدرس: </label>
+
+                                <div class="order-form__field">
+                                    <textarea class="order-form__input  order-form__input--multiple" type="text" placeholder="@address.Location"
+                                              name="address" id="txtAddress" rows="5" cols="30" required></textarea>
+                                </div>
+                            </div>
+
+                            <div class="order-form__group">
+                                <label class="order-form__label" for="txttel">شماره تماس: </label>
+
+                                <div class="order-form__field">
+                                    <input class="order-form__input " type="text" name="tel" maxlength="11" value="@address.Phone" id="txttel" required />
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </section>
+
+
+                <section class="order-form__section">
+                    <div class="order-form__content">
+                        <div class="order-form__group order-form__group--btn">
+                            <span class="order-form__label"></span>
+                            <div class="order-form__field">
+                                <button class="button" type="submit"><span class="button-text">بازگشت </span></button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </form>
+
+            <form class="order-form align-content-center" asp-controller="Profile" asp-action="Details" method="post">
+                <section class="order-form__section">
+                    <h2 class="order-form__header">اطلاعات شخصی</h2>
+                    <div class="order-form__content">
+
+
+                        <div class="order-form__group">
+                            <label class="order-form__label" for="Fname">نام: </label>
+
+                            <div class="order-form__field">
+                                <input class="order-form__input" type="text" value="@Customer.FirstName" name="Fname" id="txtprovince" required />
+                            </div>
+                        </div>
+                        <div class="order-form__group">
+                            <label class="order-form__label" for="Lname">نام خانوادگی: </label>
+
+                            <div class="order-form__field">
+                                <input class="order-form__input" type="text" name="Lname" value="@Customer.LastName" id="txtprovince" required />
+                            </div>
+                        </div>
+                        <div class="order-form__group">
+                            <label class="order-form__label" for="Username">نام کاربری: </label>
+
+                            <div class="order-form__field">
+                                <input class="order-form__input" type="text" disabled="" name="Username" value="@Customer.UserName" id="txtprovince" required />
+                            </div>
+                        </div>
+                        <div class="order-form__group">
+                            <label class="order-form__label" for="Password">رمز عبور: </label>
+
+                            <div class="order-form__field">
+                                <input class="order-form__input" type="password" name="Password" id="txtprovince" required />
+                            </div>
+                        </div>
+                        <div class="order-form__group">
+                            <label class="order-form__label" for="ConformPassword">تایید رمز عبور: </label>
+
+                            <div class="order-form__field">
+                                <input class="order-form__input" type="password" name="ConformPassword" id="txtprovince" required />
+                            </div>
+                        </div>
+
+                        <div class="m-3">
+                            <span class="text-danger">@message</span>
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                        </div>
+                        <section class="order-form__section">
+                            <div class="order-form__content">
+                                <div class="order-form__group order-form__group--btn">
+                                    <span class="order-form__label"></span>
+                                    <div class="order-form__field">
+                                        <button class="button" type="submit"><span class="button-text">ثبت اطلاعات </span></button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </section>
+                    </div>
+                </section>
+            </form>
+
+        </div>
+
+
+    }
+</div>
+

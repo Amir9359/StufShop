@@ -1,0 +1,53 @@
+﻿@model StufShop.Models.Stuf.Stuf
+@{
+    var bigpic = "";
+}
+@section Style
+{
+    <link href="~/css/reset.css" rel="stylesheet" />
+    <link href="~/css/camera.css" rel="stylesheet" />
+    <link href="~/css/form.css" rel="stylesheet" />
+    <link href="~/css/ie.css" rel="stylesheet" />
+    <link href="~/css/jquery.fancybox.css" rel="stylesheet" />
+    <link href="~/css/skeleton.css" rel="stylesheet" />
+    <link href="~/css/style.css" rel="stylesheet" />
+    <link href="~/fonts/font-awesome.css" rel="stylesheet" />
+    <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/Admin/style.css" rel="stylesheet" />
+    <link href="~/css/style.css" rel="stylesheet" />
+}
+
+<div>
+    <div class="container_12">
+        <div class="grid_12">
+            <h2>جزئیات محصولات</h2>
+
+            @if (Model != null)
+            {
+                <form asp-action="Index" asp-controller="Cart" asp-route-stufid="@Model.Id" method="post">
+                <div class="card mb-3 dir" >
+                    <img class="card-img" src="~/images/itemPics/page3_big_pic-@Model.Id .jpg" style="height: 300px;width: 400px;margin: 0 auto;" />
+                    <div class="card-body">
+                        <h5 class="card-title">@Model.Title</h5>
+                        <p class="card-text">@Model.Description</p>
+                        <button type="submit"  class="btn btn-primary margin-b">اضافه به سبد</button>
+                        <div class="card-footer text-muted ">
+                            @Model.Price قیمت
+                            <h4  style="display: inline;float: left;top: -25px;position: relative;">تعداد سفارش  </h4>
+                            <input type="number" min="1" max="@Model.Count" style=" width: 100px;margin: 0 10px 0;float: left;"  name="count" value="1" />
+                            </div>
+                    </div>
+                </div>
+
+                </form>
+            }
+            else
+            {
+                <h2> محصولی با این مشخصات موجود نیست.</h2>
+            }
+
+
+
+        </div>
+    </div>
+</div>
